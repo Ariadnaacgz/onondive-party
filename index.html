@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08070D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>OÑONDIVE Party</title>
+<style>
+:root{
+  --bg:#08070D; --surface:#12101B; --surface2:#1b1828; --line:#2a2540;
+  --violet:#8B5CF6; --lila:#C4B5FD; --text:#EDE9FE; --muted:#9a93b8;
+  --ok:#34d399; --warn:#fbbf24;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+input{font:inherit;color:var(--text)}
+.hidden{display:none!important}
+
+/* ---------- Lobby ---------- */
+#lobby{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse at 50% -10%,#2a1b57 0%,var(--bg) 60%)}
+.card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);
+  border-radius:24px;padding:28px}
+.logo{font-weight:800;letter-spacing:.14em;font-size:28px;color:var(--lila);text-align:center}
+.slogan{color:var(--muted);text-align:center;margin:6px 0 24px}
+label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+.field{width:100%;height:52px;border-radius:14px;border:1px solid var(--line);
+  background:var(--surface2);padding:0 16px;font-size:18px;outline:none}
+.field:focus{border-color:var(--violet)}
+.btn{height:56px;border-radius:16px;padding:0 20px;font-size:18px;font-weight:700;
+  background:var(--violet);color:#fff;width:100%;margin-top:14px}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface2);border:1px solid var(--line);color:var(--lila)}
+.btn.danger{background:#7f1d3a}
+.sep{text-align:center;color:var(--muted);margin:18px 0 0;font-size:14px}
+.err{color:#fda4af;min-height:20px;margin-top:12px;text-align:center;font-size:14px}
+.row{display:flex;gap:10px}
+.row .field{flex:1}
+.row .btn{width:auto;margin-top:0;flex:0 0 auto}
+
+/* ---------- Sala ---------- */
+#room{height:100%;display:flex;flex-direction:column;
+  padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+header .logo{font-size:18px;text-align:left}
+.code{background:var(--surface2);border:1px solid var(--line);border-radius:12px;
+  padding:8px 14px;font-weight:800;letter-spacing:.25em;color:var(--lila);font-size:18px}
+.sp{flex:1}
+.pill{height:44px;border-radius:12px;padding:0 16px;background:var(--surface2);
+  border:1px solid var(--line);color:var(--lila);font-weight:600}
+.members{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--surface2);border:1px solid var(--line);border-radius:999px;
+  padding:6px 12px;font-size:14px}
+.chip::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--ok);margin-right:8px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1.1fr 1fr;gap:12px}
+@media (orientation:portrait),(max-width:760px){main{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;min-height:0}
+
+/* Reloj */
+#clockPanel{display:flex;flex-direction:column;gap:14px;overflow:auto;position:relative}
+.status{font-size:14px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.12em}
+.big{font-variant-numeric:tabular-nums;text-align:center;font-weight:800;line-height:1;
+  font-size:clamp(56px,13vw,120px);color:var(--text)}
+.big.count{color:var(--violet);font-size:clamp(96px,22vw,200px)}
+.big.running{color:var(--lila)}
+.hint{color:var(--muted);font-size:14px;text-align:center;min-height:20px}
+.seg{display:flex;gap:8px;justify-content:center;align-items:center;color:var(--muted);font-size:14px}
+.seg button{height:44px;min-width:56px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-weight:700}
+.seg button.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.adjust{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.adjust button{height:48px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-weight:700;color:var(--lila)}
+.setrow{display:flex;gap:8px}
+.setrow .field{height:48px;font-size:16px;text-align:center}
+.setrow button{height:48px;border-radius:12px;padding:0 18px;background:var(--surface2);border:1px solid var(--line);font-weight:700;color:var(--lila)}
+.react{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.react button{width:52px;height:52px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);font-size:26px}
+.react button:active{transform:scale(.9)}
+#flash{position:absolute;inset:0;border-radius:22px;display:flex;align-items:center;justify-content:center;
+  background:rgba(139,92,246,.92);color:#fff;font-size:clamp(48px,12vw,110px);font-weight:900;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+#flash.show{opacity:1}
+
+/* Chat */
+#chatPanel{display:flex;flex-direction:column;gap:10px}
+#log{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.msg{max-width:88%;padding:10px 14px;border-radius:16px;background:var(--surface2);align-self:flex-start;
+  overflow-wrap:anywhere;font-size:17px}
+.msg b{display:block;font-size:12px;color:var(--lila);margin-bottom:2px}
+.msg.me{align-self:flex-end;background:#3b2a78}
+.msg.sys{align-self:center;background:none;color:var(--muted);font-size:13px;padding:2px}
+#chatForm{display:flex;gap:8px}
+#chatForm .field{flex:1;height:52px;font-size:17px}
+#chatForm button{height:52px;width:64px;border-radius:14px;background:var(--violet);color:#fff;font-size:22px;font-weight:700}
+.float{position:fixed;bottom:18%;font-size:44px;pointer-events:none;animation:up 2.2s ease-out forwards;z-index:50}
+@keyframes up{from{transform:translateY(0);opacity:1}to{transform:translateY(-260px);opacity:0}}
+.conn{position:fixed;top:0;left:0;right:0;background:var(--warn);color:#000;text-align:center;font-weight:700;padding:6px;z-index:60}
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<section id="lobby">
+  <div class="card">
+    <div class="logo">OÑONDIVE</div>
+    <div class="slogan">El cine nos une, estés donde estés</div>
+
+    <label for="name">Tu nombre</label>
+    <input id="name" class="field" maxlength="20" autocomplete="nickname" placeholder="Ej: Lu">
+
+    <button id="create" class="btn">Crear sala</button>
+
+    <div class="sep">o entra con el código de tu amiga</div>
+    <div class="row" style="margin-top:12px">
+      <input id="code" class="field" maxlength="4" autocapitalize="characters" placeholder="CÓDIGO" style="text-transform:uppercase;letter-spacing:.3em;text-align:center">
+      <button id="join" class="btn ghost">Entrar</button>
+    </div>
+    <div id="lobbyErr" class="err"></div>
+  </div>
+</section>
+
+<!-- SALA -->
+<section id="room" class="hidden">
+  <header>
+    <div class="logo">OÑONDIVE</div>
+    <div class="code" id="roomCode">----</div>
+    <button class="pill" id="share">Invitar</button>
+    <div class="sp"></div>
+    <div class="members" id="members"></div>
+    <button class="pill" id="leave">Salir</button>
+  </header>
+
+  <main>
+    <div class="panel" id="clockPanel">
+      <div class="status" id="status">Pausado</div>
+      <div class="big" id="big">00:00</div>
+      <div class="hint" id="hint"></div>
+
+      <button class="btn" id="mainBtn" style="margin-top:0">▶ Play juntas</button>
+      <div class="seg" id="secsRow">
+        <span>Cuenta:</span>
+        <button data-s="3">3s</button><button data-s="5" class="on">5s</button><button data-s="10">10s</button>
+      </div>
+
+      <div class="adjust" id="adjust">
+        <button data-d="-30000">−30s</button><button data-d="-10000">−10s</button>
+        <button data-d="10000">+10s</button><button data-d="30000">+30s</button>
+      </div>
+      <div class="setrow">
+        <input id="setT" class="field" inputmode="numeric" placeholder="Fijar tiempo (ej: 12:34)">
+        <button id="setBtn">Fijar</button>
+      </div>
+
+      <div class="react" id="react"></div>
+      <div id="flash"></div>
+    </div>
+
+    <div class="panel" id="chatPanel">
+      <div id="log"></div>
+      <form id="chatForm">
+        <input id="chatIn" class="field" maxlength="500" autocomplete="off" placeholder="Escribe un mensaje…">
+        <button type="submit" aria-label="Enviar">➤</button>
+      </form>
+    </div>
+  </main>
+</section>
+
+<div id="conn" class="conn hidden">Reconectando…</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const socket = io();
+
+  let myName = '', roomCode = '', joined = false;
+  let st = null;          // último estado del servidor
+  let offset = 0;         // serverNow = Date.now() + offset
+  let secs = 5;
+  let lastCountNum = null;
+  let audio = null;
+  const serverNow = () => Date.now() + offset;
+
+  /* ---------- Sincronización de reloj con el servidor ---------- */
+  async function syncClock() {
+    const samples = [];
+    for (let i = 0; i < 6; i++) {
+      const t0 = Date.now();
+      const s = await new Promise((r) => socket.emit('ping', r));
+      const t1 = Date.now();
+      samples.push({ rtt: t1 - t0, off: s + (t1 - t0) / 2 - t1 });
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    samples.sort((a, b) => a.rtt - b.rtt);
+    offset = samples[0].off;   // la muestra con menor latencia es la más fiable
+  }
+  setInterval(() => socket.connected && syncClock(), 30000);
+
+  /* ---------- Sonido y vibración ---------- */
+  function ensureAudio() {
+    try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch (e) {}
+  }
+  function beep(freq, ms) {
+    if (!audio) return;
+    try {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = freq; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(0.25, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + ms / 1000);
+      o.start(); o.stop(audio.currentTime + ms / 1000);
+    } catch (e) {}
+  }
+  const buzz = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+
+  /* ---------- Lobby ---------- */
+  const params = new URLSearchParams(location.search);
+  if (params.get('sala')) $('code').value = params.get('sala').toUpperCase().slice(0, 4);
+  $('name').value = localStorage.getItem('oc-name') || '';
+
+  function enter(code, create) {
+    const name = $('name').value.trim() || myName;
+    if (!name) { $('lobbyErr').textContent = 'Escribe tu nombre.'; return; }
+    ensureAudio();
+    socket.emit('join', { code, name, create }, (res) => {
+      if (!res.ok) { $('lobbyErr').textContent = res.error; if (joined) showLobby(); return; }
+      myName = name; roomCode = res.code; joined = true;
+      localStorage.setItem('oc-name', name);
+      localStorage.setItem('oc-room', roomCode);
+      history.replaceState(null, '', '?sala=' + roomCode);
+      $('lobby').classList.add('hidden'); $('room').classList.remove('hidden');
+      $('roomCode').textContent = roomCode;
+      $('log').innerHTML = '';
+      (res.chat || []).forEach(addMsg);
+      keepAwake();
+    });
+  }
+  function showLobby() {
+    joined = false; roomCode = '';
+    $('room').classList.add('hidden'); $('lobby').classList.remove('hidden');
+    history.replaceState(null, '', location.pathname);
+  }
+  $('create').onclick = () => enter('', true);
+  $('join').onclick = () => {
+    const c = $('code').value.trim().toUpperCase();
+    if (c.length !== 4) { $('lobbyErr').textContent = 'El código tiene 4 letras.'; return; }
+    enter(c, false);
+  };
+  $('leave').onclick = () => { socket.emit('leave'); localStorage.removeItem('oc-room'); st = null; showLobby(); };
+  $('share').onclick = async () => {
+    const url = location.origin + '/?sala=' + roomCode;
+    const text = `Ven a ver con nosotras en OÑONDIVE. Código: ${roomCode}`;
+    if (navigator.share) { try { await navigator.share({ title: 'OÑONDIVE', text, url }); return; } catch (e) {} }
+    try { await navigator.clipboard.writeText(url); $('share').textContent = '¡Link copiado!'; }
+    catch (e) { prompt('Copia este link:', url); }
+    setTimeout(() => ($('share').textContent = 'Invitar'), 1800);
+  };
+
+  /* ---------- Reconexión ---------- */
+  socket.on('connect', async () => {
+    $('conn').classList.add('hidden');
+    await syncClock();
+    if (joined && roomCode) {
+      socket.emit('join', { code: roomCode, name: myName, create: true }, (res) => {
+        if (res.ok) { $('log').innerHTML = ''; (res.chat || []).forEach(addMsg); }
+      });
+    }
+  });
+  socket.on('disconnect', () => $('conn').classList.remove('hidden'));
+
+  /* ---------- Chat ---------- */
+  function addMsg(m) {
+    const d = document.createElement('div');
+    if (m.system) { d.className = 'msg sys'; d.textContent = m.text; }
+    else {
+      d.className = 'msg' + (m.name === myName ? ' me' : '');
+      const b = document.createElement('b'); b.textContent = m.name;
+      const t = document.createElement('span'); t.textContent = m.text;
+      d.append(b, t);
+    }
+    const log = $('log');
+    const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+    log.appendChild(d);
+    if (atBottom || m.name === myName) log.scrollTop = log.scrollHeight;
+  }
+  socket.on('chat', addMsg);
+  $('chatForm').onsubmit = (e) => {
+    e.preventDefault();
+    const v = $('chatIn').value.trim();
+    if (v) socket.emit('chat', v);
+    $('chatIn').value = '';
+  };
+
+  /* ---------- Reacciones ---------- */
+  ['😂', '😱', '😍', '😭', '👏', '🔥'].forEach((e) => {
+    const b = document.createElement('button'); b.textContent = e;
+    b.onclick = () => socket.emit('react', e);
+    $('react').appendChild(b);
+  });
+  socket.on('react', ({ emoji }) => {
+    const f = document.createElement('div');
+    f.className = 'float'; f.textContent = emoji;
+    f.style.left = 10 + Math.random() * 75 + '%';
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 2300);
+  });
+
+  /* ---------- Reloj compartido ---------- */
+  const fmt = (ms) => {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    const p = (n) => String(n).padStart(2, '0');
+    return h ? `${h}:${p(m)}:${p(x)}` : `${p(m)}:${p(x)}`;
+  };
+  const elapsed = (c, t) => (c.state === 'running' ? c.base + (t - c.startedAt) : c.base);
+
+  socket.on('state', (s) => { st = s; renderMembers(); render(); });
+  socket.on('fired', ({ action }) => {
+    const f = $('flash');
+    f.textContent = action === 'play' ? '¡PLAY!' : '¡PAUSA!';
+    f.classList.add('show');
+    beep(action === 'play' ? 1000 : 600, 450);
+    buzz([200, 80, 200]);
+    setTimeout(() => f.classList.remove('show'), 1400);
+  });
+
+  function renderMembers() {
+    const box = $('members'); box.innerHTML = '';
+    (st.members || []).forEach((n) => {
+      const c = document.createElement('span'); c.className = 'chip'; c.textContent = n; box.appendChild(c);
+    });
+  }
+
+  function render() {
+    if (!st) return;
+    const c = st.clock, now = serverNow();
+    const big = $('big'), status = $('status'), hint = $('hint'), btn = $('mainBtn');
+    big.classList.remove('count', 'running');
+    const counting = !!c.pending;
+    $('secsRow').classList.toggle('hidden', counting);
+    $('adjust').classList.toggle('hidden', counting);
+    document.querySelector('.setrow').classList.toggle('hidden', counting);
+
+    if (counting) {
+      const rem = c.pending.at - now;
+      const n = Math.max(1, Math.ceil(rem / 1000));
+      big.classList.add('count');
+      big.textContent = rem <= 0 ? '¡YA!' : n;
+      status.textContent = (c.pending.action === 'play' ? 'Play en…' : 'Pausa en…') + ' (' + c.pending.by + ')';
+      hint.textContent = c.pending.action === 'play'
+        ? 'Prepara el dedo en el play de tu app. Al llegar a ¡PLAY!, presiónalo.'
+        : 'Prepara el dedo en pausa.';
+      btn.textContent = 'Cancelar'; btn.className = 'btn danger';
+      if (rem > 0 && n !== lastCountNum && n <= 3) { beep(660, 150); buzz(40); }
+      lastCountNum = n;
+    } else {
+      lastCountNum = null;
+      big.textContent = fmt(elapsed(c, now));
+      if (c.state === 'running') {
+        big.classList.add('running');
+        status.textContent = 'Viendo juntas';
+        hint.textContent = 'Si se desfasan, fijen el tiempo que marca Netflix/Disney.';
+        btn.textContent = '⏸ Pausar juntas'; btn.className = 'btn ghost';
+      } else {
+        status.textContent = 'En pausa';
+        hint.textContent = c.base ? 'Retomen en este tiempo.' : 'Pónganse en el minuto 0 y den play juntas.';
+        btn.textContent = '▶ Play juntas'; btn.className = 'btn';
+      }
+    }
+  }
+  setInterval(render, 100);
+
+  $('mainBtn').onclick = () => {
+    ensureAudio();
+    if (!st) return;
+    if (st.clock.pending) return socket.emit('cancel');
+    socket.emit('countdown', { action: st.clock.state === 'running' ? 'pause' : 'play', seconds: secs });
+  };
+  $('secsRow').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    secs = +b.dataset.s;
+    [...$('secsRow').querySelectorAll('button')].forEach((x) => x.classList.toggle('on', x === b));
+  };
+  $('adjust').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    socket.emit('adjust', { deltaMs: +b.dataset.d });
+  };
+  function parseTime(v) {
+    const parts = v.trim().split(':').map((x) => parseInt(x, 10));
+    if (!parts.length || parts.some((x) => !Number.isFinite(x) || x < 0)) return null;
+    let s = 0; parts.forEach((x) => { s = s * 60 + x; });
+    return parts.length === 1 ? parts[0] * 60 * 1000 : s * 1000; // "12" = minuto 12
+  }
+  $('setBtn').onclick = () => {
+    const ms = parseTime($('setT').value);
+    if (ms === null) { $('hint').textContent = 'Escribe el tiempo como 12:34 o 1:05:20'; return; }
+    socket.emit('adjust', { setMs: ms }); $('setT').value = '';
+  };
+
+  /* ---------- Pantalla encendida mientras estás en la sala ---------- */
+  let wl = null;
+  async function keepAwake() { try { wl = await navigator.wakeLock.request('screen'); } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && joined) keepAwake(); });
+})();
+</script>
+</body>
+</html>

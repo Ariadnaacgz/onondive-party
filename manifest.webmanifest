@@ -1,0 +1,9 @@
+{
+  "name": "OÑONDIVE Party",
+  "short_name": "OÑONDIVE",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08070D",
+  "theme_color": "#08070D",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
