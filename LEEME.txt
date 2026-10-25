@@ -1,0 +1,32 @@
+ANTENA PARA ANDROID TV - cómo conseguir el APK
+
+Esta carpeta no se compila en tu PC. GitHub la compila gratis en la nube.
+
+1) Crea una cuenta en github.com (gratis) y entra.
+2) Arriba a la derecha toca "+" y elige "New repository".
+   Ponle un nombre (por ejemplo antena-tv), marca "Public" y toca "Create repository".
+3) En la página del repositorio toca el enlace "uploading an existing file".
+4) Abre esta carpeta en tu PC, selecciona TODO lo que hay adentro (incluida la carpeta .github)
+   y arrástralo a la página. Cuando termine de subir, abajo toca "Commit changes".
+   Si la carpeta .github no se sube, mira el punto A de abajo.
+5) Entra a la pestaña "Actions". Verás "Construir APK" trabajando. Tarda de 3 a 6 minutos.
+   Cuando aparezca un tilde verde, está listo.
+6) En la página principal del repositorio, a la derecha, entra a "Releases" y verás "Antena APK".
+   La dirección de descarga directa es:
+   https://github.com/TU-USUARIO/NOMBRE-DEL-REPOSITORIO/releases/download/apk/antena.apk
+
+EN LA TELE (Downloader):
+   Abre Downloader, escribe esa dirección y dale a Ir. Se descarga e instala.
+   La primera vez, Android pide permiso para instalar apps de Downloader: acéptalo en Ajustes.
+
+SI NO ENTRA UN TILDE VERDE
+   Abre la ejecución que falló en Actions, copia el mensaje de error en rojo y mándaselo a Claude.
+
+A) Si la carpeta .github no se subió:
+   En el repositorio toca "Add file" > "Create new file". En el nombre escribe exactamente:
+   .github/workflows/build.yml
+   Pega adentro el contenido del archivo build.yml de esta carpeta y toca "Commit changes".
+
+B) Si cambias la dirección de tu sitio en Netlify:
+   Edita el archivo app/src/main/res/values/strings.xml en GitHub (ícono de lápiz)
+   y cambia la dirección que aparece en app_url. Se vuelve a compilar solo.
